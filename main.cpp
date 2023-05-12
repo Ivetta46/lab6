@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cmath>
 
 void solveMatrix (int n, double *a, double *c, double *b, double *f, double *x)
 {
@@ -23,29 +24,34 @@ double nextIteration()
     return 0;
 }
 
-double bottom()
+double bottom(double y, double t)
 {
-    return 0;
+    return std::pow(1 + y, 5.0 / 3.0) / std::pow(10 - 28 * t / 3.0, 2.0 / 3.0);
 }
 
-double top()
+double top(double y, double t)
 {
-    return 0;
+    return std::pow(2 + y, 5.0 / 3.0) / std::pow(10 - 28 * t / 3.0, 2.0 / 3.0);
 }
 
-double left()
+double left(double x, double t)
 {
-    return 0;
+    return std::pow(1 + x, 5.0 / 3.0) / std::pow(10 - 28 * t / 3.0, 2.0 / 3.0);
 }
 
-double right()
+double right(double x, double t)
 {
-    return 0;
+    return std::pow(2 + x, 5.0 / 3.0) / std::pow(10 - 28 * t / 3.0, 2.0 / 3.0);
 }
 
-double initial()
+double initial(double x, double y)
 {
-    return 0;
+    return std::pow(1 + x + y, 4.0 / 3.0) / std::pow(100, 1.0 / 3.0);
+}
+
+double K(double arg)
+{
+    return std::pow(arg, 1.5);
 }
 
 int main()
