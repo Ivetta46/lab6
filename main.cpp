@@ -18,6 +18,24 @@ double compare(double** left, double** right, int L, int M)
     return maxDif / max;
 }
 
+void solveMatrix (int n, double *a, double *c, double *b, double *f, double *x)
+{
+	double m;
+	for (int i = 1; i < n; i++)
+	{
+		m = a[i]/c[i-1];
+		c[i] = c[i] - m*b[i-1];
+		f[i] = f[i] - m*f[i-1];
+	}
+
+	x[n-1] = f[n-1]/c[n-1];
+
+	for (int i = n - 2; i >= 0; i--)
+    {
+		x[i]=(f[i]-b[i]*x[i+1])/c[i];
+    }
+}
+
 void nextIteration(
     double* a, 
     double* b, 
@@ -36,7 +54,7 @@ void nextIteration(
         for (int m = 0; m < M; m++){
             // kminus = (k1 + k0) / 2 = (u0 + u1) / 2 // 1..L-1
             // kplus  = (k1 + k2) / 2 = (u1 + u2) / 2 // 1..L-1
-            for (int l = 0; l < L - 1; l++)
+            for (int l = 0; l < L - 2; l++)
             {       
                 kMinus[l] = 0.5 * (K(currentLayer[m][l]) + K(currentLayer[m][l + 1]));
                 kPlus[l] = 0.5 * (K(currentLayer[m][l + 1]) + K(currentLayer[m][l + 2]));
@@ -66,7 +84,7 @@ void nextIteration(
         for (int l = 0; l < L; l++){
             // kminus = (k1 + k0) / 2 = (u0 + u1) / 2 // 1..L-1
             // kplus  = (k1 + k2) / 2 = (u1 + u2) / 2 // 1..L-1
-            for (int m = 0; m < M - 1; m++)
+            for (int m = 0; m < M - 2; m++)
             {       
                 kMinus[m] = 0.5 * (K(currentLayer[m][l]) + K(currentLayer[m + 1][l]));
                 kPlus[m] = 0.5 * (K(currentLayer[m + 1][l]) + K(currentLayer[m + 2][l]));
@@ -93,6 +111,8 @@ void nextIteration(
             solveMatrix(M, a, c, b, intermediateLayer[l], nextLayer[l]);        
         }
 
+        // std::cout << compare(nextLayer, currentLayer, L, M) << std::endl;
+
         if (compare(nextLayer, currentLayer, L, M) < epsilon)
         {
             break;
@@ -110,41 +130,111 @@ void nextIteration(
 
 int main()
 {
+
+    /////////////////////////////////////////////////////////////
+    ///-----------------Allocate resources--------------------///
+    /////////////////////////////////////////////////////////////
+
     int L, M, N;
     std::cin >> L >> M >> N;
 
     double step;
     std::cin >> step;
 
-    double** grid = new double*[L];
-    for (int l = 0; l < L; l++)
-    {
-        grid[l] = new double[M];
-    }
-
     double*** u = new double**[N];
     for (int i = 0; i < N; i++)
     {   
-        u[i] = new double*[L];
+        u[i] = new double*[M];
         
-        for (int l = 0; l < L; l++)
+        for (int m = 0; m < M; m++)
         {
-            u[i][l] = new double[M];
+            u[i][m] = new double[L];
         }
     }
 
-    for (int i = 0; i < N-1; i++)
-    {
-        //u[i+1][0][0] = nextIteration();
-        int a = 1;
-    }
+    /////////////////////////////////////////////////////////////
+    ///-----------------Set initial values--------------------///
+    /////////////////////////////////////////////////////////////
 
     for (int l = 0; l < L; l++)
     {
-        delete[] grid[l];
+        for (int m = 0; m < M; m++)
+        {
+            u[0][m][l] = initial(l * hx, m * hy);
+        }
+    }
+
+    for (int n = 1; n < N; n++)
+    {
+        for (int l = 0; l < L; l++)
+        {
+            u[n][0][l] = bottom(l * hx, n * step);
+            u[n][M - 1][l] = top(l * hx, n * step);
+        }
+
+        for (int m = 0; m < M; m++)
+        {
+            u[n][m][0] = bottom(m * hy, n * step);
+            u[n][m][L - 1] = top(m * hy, n * step);
+        }
     }
     
-    delete[] grid;
+    /////////////////////////////////////////////////////////////
+    ///-----------------Solve diff equation-------------------///
+    /////////////////////////////////////////////////////////////
+
+    double* a = new double[std::max(L, M)];
+    double* b = new double[std::max(L, M)];
+    double* c = new double[std::max(L, M)];
+    double* kPlus = new double[std::max(L, M)];
+    double* kMinus = new double[std::max(L, M)];
+
+    double** currentLayer = new double*[M];
+    double** intermediateLayer = new double*[M];
+    double** nextLayer = new double*[M];
+
+    for (int m = 0; m < M; m++)
+    {
+        currentLayer[m] = new double[L];
+        intermediateLayer[m] = new double[L];
+        nextLayer[m] = new double[L];
+    }
+
+    for (int n = 1; n < N; n++)
+    {
+        std::cout << n << std::endl;
+        for (int m = 0; m < M; m++)
+        {
+            for (int l = 0; l < L; l++)
+            {
+                currentLayer[m][l] = u[n - 1][m][l];
+            }
+        }
+        
+        nextIteration(a, b, c, L, M, kPlus, kMinus, u[n - 1], currentLayer, intermediateLayer, nextLayer);
+        
+        for (int m = 0; m < M; m++)
+        {
+            for (int l = 0; l < L; l++)
+            {
+                u[n][m][l] = nextLayer[m][l];
+            }
+        } 
+    }
+
+
+    for (int m = 0; m < M; m++)
+    {
+        for (int l = 0; l < L; l++)
+        {
+            std::cout << u[N - 1][m][l] << " ";
+        }
+        std::cout << std::endl;
+    } 
+
+    /////////////////////////////////////////////////////////////
+    ///-----------------Deallocate resources------------------///
+    /////////////////////////////////////////////////////////////
 
     return 0;
 }
