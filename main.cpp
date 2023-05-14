@@ -14,8 +14,8 @@ double compare(double** left, double** right, int L, int M)
             max = std::max(max, std::abs(left[m][l]));
         }
     }
-    std::cout << "maxdiff: " << maxDif << std::endl;
-    std::cout << "max: " << max << std::endl;
+    // std::cout << "maxdiff: " << maxDif << std::endl;
+    // std::cout << "max: " << max << std::endl;
     return maxDif / max;
 }
 
@@ -144,7 +144,7 @@ void nextIteration(
             delete[] result;
         }
 
-        std::cout << compare(nextLayer, currentLayer, L, M) << std::endl;
+        // std::cout << compare(nextLayer, currentLayer, L, M) << std::endl;
 
         if (compare(nextLayer, currentLayer, L, M) < epsilon)
         {
@@ -238,7 +238,7 @@ int main()
 
     for (int n = 1; n < N; n++)
     {
-        std::cout << n << std::endl;
+        // std::cout << n << std::endl;
         for (int m = 0; m < M; m++)
         {
             for (int l = 0; l < L; l++)
@@ -258,6 +258,7 @@ int main()
         } 
     }
 
+    std::cout << "Numerical: " << std::endl;
 
     for (int m = 0; m < M; m++)
     {
@@ -267,6 +268,30 @@ int main()
         }
         std::cout << std::endl;
     } 
+
+    std::cout << "Analitical: " << std::endl;
+
+    for (int m = 0; m < M; m++)
+    {
+        for (int l = 0; l < L; l++)
+        {
+            std::cout << analitics(l * hx, m * hy, 1) << " ";
+        }
+        std::cout << std::endl;
+    } 
+    
+    std::cout << "Diff: " << std::endl;
+
+    for (int m = 0; m < M; m++)
+    {
+        for (int l = 0; l < L; l++)
+        {
+            std::cout << u[N - 1][m][l] - analitics(l * hx, m * hy, 1) << " ";
+        }
+        std::cout << std::endl;
+    } 
+
+
 
     /////////////////////////////////////////////////////////////
     ///-----------------Deallocate resources------------------///
