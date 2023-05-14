@@ -175,7 +175,7 @@ int main()
     hx = 1.0 / (L - 1);
     hy = 1.0 / (M - 1);
 
-    epsilon = 0.00001;
+    epsilon = 0.001;
 
     double*** u = new double**[N];
     for (int i = 0; i < N; i++)
