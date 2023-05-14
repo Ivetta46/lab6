@@ -4,10 +4,10 @@
 
 // Here defind functions for initial and boundary conditions.
 
-constexpr double tau = 0.2;
-constexpr double hx = 0.2;
-constexpr double hy = 0.2;
-constexpr double epsilon = 0.001;
+double tau;
+double hx;
+double hy;
+double epsilon;
 
 double left(double y, double t)
 {
